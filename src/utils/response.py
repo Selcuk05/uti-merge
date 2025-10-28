@@ -1,20 +1,20 @@
 from sdks.novavision.src.helper.package import PackageHelper
 from components.Merge.src.models.PackageModel import (
     PackageModel,
-    PackageConfigs,
+    OutputArray,
+    ArrayOutputs,
+    ArrayResponse,
+    Array,
     ConfigExecutor,
-    PackageOutputs,
-    PackageResponse,
-    PackageExecutor,
-    OutputImage,
+    PackageConfigs,
 )
 
 
-def build_response(context):
-    outputImage = OutputImage(value=context.image)
-    Outputs = PackageOutputs(outputImage=outputImage)
-    packageResponse = PackageResponse(outputs=Outputs)
-    packageExecutor = PackageExecutor(value=packageResponse)
+def build_response_array(context):
+    outputArray = OutputArray(value=context.merged)
+    Outputs = ArrayOutputs(outputArray=outputArray)
+    packageResponse = ArrayResponse(outputs=Outputs)
+    packageExecutor = Array(value=packageResponse)
     executor = ConfigExecutor(value=packageExecutor)
     packageConfigs = PackageConfigs(executor=executor)
     package = PackageHelper(packageModel=PackageModel, packageConfigs=packageConfigs)

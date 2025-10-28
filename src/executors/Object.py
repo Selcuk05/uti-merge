@@ -14,11 +14,31 @@ class Object(Component):
         super().__init__(request, bootstrap)
         self.request.model = PackageModel(**(self.request.data))
 
+        self.input_object_x = self.request.get_param("inputObjectX")
+        self.input_object_y = self.request.get_param("inputObjectY")
+
     @staticmethod
     def bootstrap(config: dict) -> dict:
         return {}
 
+    def merge_objects(self, object_x, object_y):
+        merged = {}
+
+        for key, value in object_x.items():
+            if key in object_y:
+                merged[f"{key}_x"] = value
+                merged[f"{key}_y"] = object_y[key]
+            else:
+                merged[key] = value
+
+        for key, value in object_y.items():
+            if key not in object_x:
+                merged[key] = value
+
+        return merged
+
     def run(self):
+        self.merged = self.merge_objects(self.input_object_x, self.input_object_y)
         packageModel = build_response_object(context=self)
         return packageModel
 

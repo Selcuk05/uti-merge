@@ -1,143 +1,142 @@
+from typing import Optional, Union, Literal
+from sdks.novavision.src.base.model import (
+    Package,
+    Inputs,
+    Configs,
+    Outputs,
+    Response,
+    Request,
+    Output,
+    Input,
+    Config,
+)
 
-from pydantic import Field, validator
-from typing import List, Optional, Union, Literal
-from sdks.novavision.src.base.model import Package, Image, Inputs, Configs, Outputs, Response, Request, Output, Input, Config
 
-
-class InputImage(Input):
-    name: Literal["inputImage"] = "inputImage"
-    value: Union[List[Image], Image]
+class InputArrayX(Input):
+    name: Literal["inputArrayX"] = "inputArrayX"
+    value: list
     type: str = "object"
 
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get('value')
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
-
     class Config:
-        title = "Image"
+        title = "Array 1"
 
 
-class OutputImage(Output):
-    name: Literal["outputImage"] = "outputImage"
-    value: Union[List[Image],Image]
+class InputArrayY(Input):
+    name: Literal["inputArrayY"] = "inputArrayY"
+    value: list
     type: str = "object"
 
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get('value')
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
+    class Config:
+        title = "Array 2"
+
+
+class InputObjectX(Input):
+    name: Literal["inputObjectX"] = "inputObjectX"
+    value: dict
+    type: str = "object"
 
     class Config:
-        title = "Image"
+        title = "Object 1"
 
 
-class KeepSideFalse(Config):
-    name: Literal["False"] = "False"
-    value: Literal[False] = False
-    type: Literal["bool"] = "bool"
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Disable"
-
-
-class KeepSideTrue(Config):
-    name: Literal["True"] = "True"
-    value: Literal[True] = True
-    type: Literal["bool"] = "bool"
-    field: Literal["option"] = "option"
+class InputObjectY(Input):
+    name: Literal["inputObjectY"] = "inputObjectY"
+    value: dict
+    type: str = "object"
 
     class Config:
-        title = "Enable"
+        title = "Object 2"
 
 
-class KeepSideBBox(Config):
-    """
-        Rotate image without catting off sides.
-    """
-    name: Literal["KeepSide"] = "KeepSide"
-    value: Union[KeepSideTrue, KeepSideFalse]
-    type: Literal["object"] = "object"
-    field: Literal["dropdownlist"] = "dropdownlist"
+class OutputArray(Output):
+    name: Literal["outputArray"] = "outputArray"
+    value: list
+    type: str = "object"
 
     class Config:
-        title = "Keep Sides"
+        title = "Array"
 
 
-class Degree(Config):
-    """
-        Positive angles specify counterclockwise rotation while negative angles indicate clockwise rotation.
-    """
-    name: Literal["Degree"] = "Degree"
-    value: int = Field(ge=-359.0, le=359.0,default=0)
-    type: Literal["number"] = "number"
-    field: Literal["textInput"] = "textInput"
-    placeHolder: Literal["[-359, 359]"] = "[-359, 359]"
+class OutputObject(Output):
+    name: Literal["outputObject"] = "outputObject"
+    value: dict
+    type: str = "object"
 
     class Config:
-        title = "Angle"
+        title = "Object"
 
 
-class PackageInputs(Inputs):
-    inputImage: InputImage
+class ArrayInputs(Inputs):
+    inputArrayX: InputArrayX
+    inputArrayY: InputArrayY
 
 
-class PackageConfigs(Configs):
-    degree: Degree
-    drawBBox: KeepSideBBox
+class ArrayOutputs(Outputs):
+    outputArray: OutputArray
 
 
-class PackageOutputs(Outputs):
-    outputImage: OutputImage
-
-
-class PackageRequest(Request):
-    inputs: Optional[PackageInputs]
-    configs: PackageConfigs
+class ArrayRequest(Request):
+    inputs: Optional[ArrayInputs]
 
     class Config:
-        json_schema_extra = {
-            "target": "configs"
-        }
+        json_schema_extra = {"target": "configs"}
 
 
-class PackageResponse(Response):
-    outputs: PackageOutputs
+class ArrayResponse(Response):
+    outputs: ArrayOutputs
 
 
-class PackageExecutor(Config):
-    name: Literal["Package"] = "Package"
-    value: Union[PackageRequest, PackageResponse]
+class Array(Config):
+    name: Literal["Array"] = "Array"
+    value: Union[ArrayRequest, ArrayResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
 
     class Config:
-        title = "Package"
-        json_schema_extra = {
-            "target": {
-                "value": 0
-            }
-        }
+        title = "Array"
+        json_schema_extra = {"target": {"value": 0}}
+
+
+class ObjectInputs(Inputs):
+    inputObjectX: InputObjectX
+    inputObjectY: InputObjectY
+
+
+class ObjectOutputs(Outputs):
+    outputObject: OutputObject
+
+
+class ObjectRequest(Request):
+    inputs: Optional[ObjectInputs]
+
+    class Config:
+        json_schema_extra = {"target": "configs"}
+
+
+class ObjectResponse(Response):
+    outputs: ObjectOutputs
+
+
+class Object(Config):
+    name: Literal["Object"] = "Object"
+    value: Union[ObjectRequest, ObjectResponse]
+    type: Literal["object"] = "object"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Object"
+        json_schema_extra = {"target": {"value": 0}}
 
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[PackageExecutor]
+    value: Union[Array, Object]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Task"
-        json_schema_extra = {
-            "target": "value"
-        }
+        json_schema_extra = {"target": "value"}
 
 
 class PackageConfigs(Configs):
@@ -147,4 +146,4 @@ class PackageConfigs(Configs):
 class PackageModel(Package):
     configs: PackageConfigs
     type: Literal["component"] = "component"
-    name: Literal["Package"] = "Package"
+    name: Literal["Merge"] = "Merge"
